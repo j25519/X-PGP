@@ -1,6 +1,6 @@
 # X PGP
 
-Basically a Temu Keyoxide.
+Basically a Temu [Keyoxide.](https://keyoxide.org/)
 
 Have yet to add vertification of cryptographic proofs like Keyoxide has, but it will show metadata attached to a PGP key in a format that *should* be compatible with keys using Keyoxide's format.
 
