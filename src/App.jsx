@@ -19,9 +19,11 @@ const App = () => {
       case 'rsasign':
         return 'RSA'
       case 'eddsa':
-        return 'Ed25519'
+        return 'EdDSA'
+      case 'eddsalegacy':
+        return 'EdDSA (Legacy)'
       case 'ecdh':
-        return 'X25519'
+        return 'ECDH'
       case 'ecdsa':
         return 'ECDSA'
       case 'elgamal':
@@ -31,6 +33,33 @@ const App = () => {
       default:
         return rawName
     }
+  }
+
+  const normalizeCurveName = (curve) => {
+    if (!curve) return null
+    switch (curve.toLowerCase()) {
+      case 'ed25519legacy':
+        return 'Ed25519 (Legacy)'
+      case 'curve25519legacy':
+        return 'Curve25519 (Legacy)'
+      case 'curve25519':
+        return 'X25519'
+      case 'p256':
+        return 'P-256'
+      case 'p384':
+        return 'P-384'
+      case 'p521':
+        return 'P-521'
+      case 'secp256k1':
+        return 'secp256k1'
+      default:
+        return curve
+    }
+  }
+
+  const isEllipticCurveAlgorithm = (algName) => {
+    const lowerName = algName.toLowerCase()
+    return ['eddsa', 'eddsalegacy', 'ecdh', 'ecdsa'].includes(lowerName)
   }
 
   const parseKey = async (text) => {
@@ -62,6 +91,7 @@ const App = () => {
       const primaryKey = key.keyPacket
       const algorithmInfo = primaryKey.getAlgorithmInfo()
       console.log('Primary algorithmInfo:', algorithmInfo) // Debug log
+      const primaryAlgName = normalizeAlgorithmName(algorithmInfo)
       const subKeysDetails = subKeys.map((subKey) => {
         const subAlg = subKey.getAlgorithmInfo()
         console.log('Subkey algorithmInfo:', subAlg) // Debug log
@@ -72,9 +102,11 @@ const App = () => {
           if (flags & openpgp.enums.keyFlags.encryptCommunication) usage.push('Encryption')
           if (flags & openpgp.enums.keyFlags.encryptStorage) usage.push('Storage Encryption')
         }
+        const subAlgName = normalizeAlgorithmName(subAlg)
         return {
           keyID: subKey.getKeyID().toHex().toUpperCase(),
-          algorithm: `${normalizeAlgorithmName(subAlg)}${subAlg.bits ? ` (${subAlg.bits} bits)` : ''}`,
+          algorithm: `${subAlgName}${subAlg.bits ? ` (${subAlg.bits} bits)` : ''}`,
+          curve: isEllipticCurveAlgorithm(subAlgName.toLowerCase()) ? normalizeCurveName(subAlg.curve) : null,
           usage: usage.join(', ') || 'Unknown',
         }
       })
@@ -84,7 +116,8 @@ const App = () => {
         fingerprint: key.getFingerprint().toUpperCase(),
         notations,
         technicalDetails: {
-          keyType: `${normalizeAlgorithmName(algorithmInfo)}${algorithmInfo.bits ? ` (${algorithmInfo.bits} bits)` : ''}`,
+          keyType: `${primaryAlgName}${algorithmInfo.bits ? ` (${algorithmInfo.bits} bits)` : ''}`,
+          curve: isEllipticCurveAlgorithm(primaryAlgName.toLowerCase()) ? normalizeCurveName(algorithmInfo.curve) : null,
           keyID: key.getKeyID().toHex().toUpperCase(),
           creationDate: key.getCreationTime(),
           expiryDate: key.getExpirationTime() || null,

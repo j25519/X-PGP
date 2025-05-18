@@ -58,6 +58,7 @@ const ProfileDisplay = ({ keyData }) => {
         <h3 className="text-lg font-semibold">Technical Details</h3>
         <ul className="list-disc list-inside text-gray-300">
           <li>Key Type: {keyData.technicalDetails.keyType}</li>
+          {keyData.technicalDetails.curve && <li>Curve: {keyData.technicalDetails.curve}</li>}
           <li>Key ID: {keyData.technicalDetails.keyID}</li>
           <li>Creation Date: {formatDate(keyData.technicalDetails.creationDate)}</li>
           <li>Expiry Date: {formatDate(keyData.technicalDetails.expiryDate)}</li>
@@ -68,7 +69,8 @@ const ProfileDisplay = ({ keyData }) => {
               <ul className="list-circle list-inside ml-4">
                 {keyData.technicalDetails.subKeys.map((subKey, index) => (
                   <li key={index}>
-                    {subKey.algorithm} (ID: {subKey.keyID}, Usage: {subKey.usage})
+                    {subKey.algorithm}
+                    {subKey.curve && `, Curve: ${subKey.curve}`} (ID: {subKey.keyID}, Usage: {subKey.usage})
                   </li>
                 ))}
               </ul>
