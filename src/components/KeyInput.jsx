@@ -66,7 +66,7 @@ const KeyInput = ({ keyText, setKeyText, parseKey, setError }) => {
             click to upload
             <input
               type="file"
-              accept=".asc,text/plain"
+              accept=".asc"
               className="hidden"
               onChange={handleFileSelect}
             />

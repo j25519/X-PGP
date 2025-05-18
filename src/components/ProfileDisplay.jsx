@@ -1,4 +1,13 @@
 const ProfileDisplay = ({ keyData }) => {
+  const formatDate = (date) => {
+    if (!date || !(date instanceof Date) || isNaN(date)) return 'Unknown'
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  }
+
   return (
     <div className="w-full max-w-2xl bg-gray-900 border border-gray-700 rounded-lg p-6">
       <div className="flex items-center mb-4">
@@ -27,7 +36,7 @@ const ProfileDisplay = ({ keyData }) => {
         </div>
       )}
       {keyData.notations.length > 0 && (
-        <div>
+        <div className="mb-4">
           <h3 className="text-lg font-semibold">Identity Claims</h3>
           <ul className="list-disc list-inside text-gray-300">
             {keyData.notations.map((notation, index) => (
@@ -45,6 +54,28 @@ const ProfileDisplay = ({ keyData }) => {
           </ul>
         </div>
       )}
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold">Technical Details</h3>
+        <ul className="list-disc list-inside text-gray-300">
+          <li>Key Type: {keyData.technicalDetails.keyType}</li>
+          <li>Key ID: {keyData.technicalDetails.keyID}</li>
+          <li>Creation Date: {formatDate(keyData.technicalDetails.creationDate)}</li>
+          <li>Expiry Date: {formatDate(keyData.technicalDetails.expiryDate)}</li>
+          <li>Revoked: {keyData.technicalDetails.isRevoked ? 'Yes' : 'No'}</li>
+          {keyData.technicalDetails.subKeys.length > 0 && (
+            <li>
+              Subkeys:
+              <ul className="list-circle list-inside ml-4">
+                {keyData.technicalDetails.subKeys.map((subKey, index) => (
+                  <li key={index}>
+                    {subKey.algorithm} (ID: {subKey.keyID}, Usage: {subKey.usage})
+                  </li>
+                ))}
+              </ul>
+            </li>
+          )}
+        </ul>
+      </div>
       <p className="text-gray-400 text-sm mt-4">
         Note: Avatar support (Libravatar/Gravatar) requires an email match with your key.
       </p>
